@@ -1,0 +1,147 @@
+{
+  "name": "nexus-pricing",
+  "displayName": "NexusPricing - Dynamic Pricing Intelligence",
+  "version": "1.0.0",
+  "description": "AI-powered dynamic pricing with competitive analysis, demand forecasting, and price optimization. Maximize revenue with machine learning.",
+  "developer": {
+    "name": "Adverant",
+    "url": "https://adverant.ai",
+    "email": "plugins@adverant.ai",
+    "verified": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adverant/Adverant-Nexus-Plugin-Pricing"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "pricing",
+    "dynamic-pricing",
+    "revenue-optimization",
+    "competitive-analysis",
+    "demand-forecasting",
+    "price-optimization",
+    "ml",
+    "ai-agents"
+  ],
+  "nexus": {
+    "minVersion": "1.0.0",
+    "executionMode": "mcp_container",
+    "isolationLevel": 2,
+    "capabilities": [
+      "price-optimization",
+      "competitive-analysis",
+      "demand-forecasting",
+      "ab-testing",
+      "rule-engine",
+      "revenue-analytics"
+    ],
+    "permissions": [
+      "network:external",
+      "filesystem:temp",
+      "service:mageagent",
+      "service:graphrag"
+    ],
+    "entrypoint": "dist/index.js",
+    "healthCheck": "/health",
+    "readinessCheck": "/ready",
+    "livenessCheck": "/live"
+  },
+  "resources": {
+    "cpuMillicores": 2000,
+    "memoryMB": 4096,
+    "diskGB": 5,
+    "timeoutMs": 300000,
+    "maxConcurrentJobs": 10
+  },
+  "api": {
+    "version": "v1",
+    "basePath": "/api/v1/pricing",
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/optimize",
+        "description": "Get optimal price recommendation"
+      },
+      {
+        "method": "GET",
+        "path": "/products/:id/analysis",
+        "description": "Get product pricing analysis"
+      },
+      {
+        "method": "POST",
+        "path": "/forecast",
+        "description": "Generate demand forecast"
+      },
+      {
+        "method": "GET",
+        "path": "/competitors",
+        "description": "List competitor prices"
+      },
+      {
+        "method": "POST",
+        "path": "/rules",
+        "description": "Create pricing rule"
+      },
+      {
+        "method": "POST",
+        "path": "/ab-tests",
+        "description": "Start A/B test"
+      },
+      {
+        "method": "GET",
+        "path": "/analytics/revenue",
+        "description": "Get revenue analytics"
+      }
+    ]
+  },
+  "pricing": {
+    "model": "tiered",
+    "currency": "USD",
+    "tiers": [
+      {
+        "name": "starter",
+        "displayName": "Starter",
+        "priceMonthly": 19900,
+        "priceYearly": 199000,
+        "limits": {
+          "skus": 1000,
+          "priceUpdatesPerDay": 100,
+          "competitors": 3
+        },
+        "features": ["basic-optimization", "basic-forecasting", "price-alerts"]
+      },
+      {
+        "name": "professional",
+        "displayName": "Professional",
+        "priceMonthly": 59900,
+        "priceYearly": 599000,
+        "limits": {
+          "skus": 25000,
+          "priceUpdatesPerDay": 10000,
+          "competitors": 25
+        },
+        "features": ["advanced-optimization", "advanced-forecasting", "ab-testing", "full-api"],
+        "popular": true
+      },
+      {
+        "name": "enterprise",
+        "displayName": "Enterprise",
+        "priceMonthly": -1,
+        "priceYearly": -1,
+        "limits": {
+          "skus": -1,
+          "priceUpdatesPerDay": -1,
+          "competitors": -1
+        },
+        "features": ["custom-models", "unlimited-rules", "webhooks", "dedicated-support", "sla"]
+      }
+    ]
+  },
+  "marketplace": {
+    "category": "commerce",
+    "subcategory": "pricing",
+    "featured": true,
+    "tags": ["pricing", "revenue", "optimization", "forecasting", "ai", "ml"]
+  }
+}

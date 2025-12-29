@@ -1,0 +1,322 @@
+// Prisma Schema for Dynamic Pricing Service
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Base Price Configuration for Properties
+model PropertyBasePrice {
+  id         String   @id @default(uuid())
+  propertyId String   @unique
+  basePrice  Decimal  @db.Decimal(10, 2)
+  currency   String   @default("USD")
+  minPrice   Decimal? @db.Decimal(10, 2)
+  maxPrice   Decimal? @db.Decimal(10, 2)
+
+  // Metadata
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  prices     DynamicPrice[]
+  rules      PricingRule[]
+
+  @@map("property_base_prices")
+}
+
+// Dynamic Pricing Calculations
+model DynamicPrice {
+  id                String   @id @default(uuid())
+  propertyId        String
+  date              DateTime @db.Date
+
+  // Pricing Components
+  basePrice         Decimal  @db.Decimal(10, 2)
+  calculatedPrice   Decimal  @db.Decimal(10, 2)
+  finalPrice        Decimal  @db.Decimal(10, 2)
+  currency          String   @default("USD")
+
+  // Factors Applied
+  seasonalFactor    Decimal  @default(1.0) @db.Decimal(5, 4)
+  weekendFactor     Decimal  @default(1.0) @db.Decimal(5, 4)
+  demandFactor      Decimal  @default(1.0) @db.Decimal(5, 4)
+  eventFactor       Decimal  @default(1.0) @db.Decimal(5, 4)
+  lastMinuteFactor  Decimal  @default(1.0) @db.Decimal(5, 4)
+  losDiscountFactor Decimal  @default(1.0) @db.Decimal(5, 4)
+
+  // Metadata
+  appliedRuleIds    String[] // Array of rule IDs that were applied
+  overridden        Boolean  @default(false)
+  overrideReason    String?
+  version           Int      @default(1)
+
+  // Timestamps
+  calculatedAt      DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  propertyBasePrice PropertyBasePrice @relation(fields: [propertyId], references: [propertyId])
+  priceOverrides    PriceOverride[]
+
+  @@unique([propertyId, date])
+  @@index([propertyId, date])
+  @@index([date])
+  @@map("dynamic_prices")
+}
+
+// Manual Price Overrides
+model PriceOverride {
+  id             String   @id @default(uuid())
+  propertyId     String
+  date           DateTime @db.Date
+  overridePrice  Decimal  @db.Decimal(10, 2)
+  reason         String
+  createdBy      String
+
+  // Validity Period
+  validFrom      DateTime @default(now())
+  validUntil     DateTime?
+  active         Boolean  @default(true)
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  dynamicPrice   DynamicPrice? @relation(fields: [dynamicPriceId], references: [id])
+  dynamicPriceId String?
+
+  @@index([propertyId, date])
+  @@index([active])
+  @@map("price_overrides")
+}
+
+// Pricing Rules Engine
+model PricingRule {
+  id             String   @id @default(uuid())
+  propertyId     String?  // null = global rule
+  name           String
+  description    String?
+  type           RuleType
+  priority       Int      @default(0) // Higher number = higher priority
+
+  // Rule Configuration
+  config         Json     // Flexible JSON for rule-specific config
+
+  // Conditions
+  conditions     Json     // When to apply this rule
+
+  // Action
+  adjustment     Decimal  @db.Decimal(5, 4) // Multiplier or fixed amount
+  adjustmentType AdjustmentType @default(MULTIPLIER)
+
+  // Constraints
+  minPrice       Decimal? @db.Decimal(10, 2)
+  maxPrice       Decimal? @db.Decimal(10, 2)
+
+  // Validity
+  validFrom      DateTime
+  validUntil     DateTime?
+  active         Boolean  @default(true)
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  propertyBasePrice PropertyBasePrice? @relation(fields: [propertyId], references: [propertyId])
+
+  @@index([propertyId])
+  @@index([type, active])
+  @@index([priority])
+  @@map("pricing_rules")
+}
+
+// Market Analysis & Competitor Tracking
+model MarketAnalysis {
+  id                  String   @id @default(uuid())
+  propertyId          String
+  analysisDate        DateTime @db.Date
+
+  // Market Metrics
+  averageCompetitorPrice Decimal? @db.Decimal(10, 2)
+  marketOccupancy     Decimal? @db.Decimal(5, 4)
+  demandScore         Decimal? @db.Decimal(5, 4)
+
+  // Events
+  localEvents         Json?    // Array of events affecting pricing
+
+  // Forecast Data
+  predictedOccupancy  Decimal? @db.Decimal(5, 4)
+  predictedDemand     Decimal? @db.Decimal(5, 4)
+  confidenceScore     Decimal? @db.Decimal(5, 4)
+
+  // Timestamps
+  createdAt           DateTime @default(now())
+
+  @@unique([propertyId, analysisDate])
+  @@index([propertyId, analysisDate])
+  @@map("market_analysis")
+}
+
+// Revenue Analytics
+model RevenueAnalytics {
+  id               String   @id @default(uuid())
+  propertyId       String
+  periodStart      DateTime @db.Date
+  periodEnd        DateTime @db.Date
+
+  // Booking Metrics
+  totalBookings    Int
+  totalRevenue     Decimal  @db.Decimal(12, 2)
+  totalNights      Int
+
+  // Rate Metrics
+  averageDailyRate Decimal  @db.Decimal(10, 2)
+  revPAN           Decimal  @db.Decimal(10, 2) // Revenue Per Available Night
+  occupancyRate    Decimal  @db.Decimal(5, 4)
+
+  // Trend Metrics
+  pickupRate       Decimal? @db.Decimal(5, 4)
+  cancellationRate Decimal? @db.Decimal(5, 4)
+  avgLeadTime      Decimal? @db.Decimal(8, 2)
+
+  // Timestamps
+  calculatedAt     DateTime @default(now())
+
+  @@unique([propertyId, periodStart, periodEnd])
+  @@index([propertyId])
+  @@map("revenue_analytics")
+}
+
+// ML Model Training History
+model MLModelTraining {
+  id              String   @id @default(uuid())
+  modelType       MLModelType
+  modelVersion    String
+  propertyId      String?  // null = global model
+
+  // Training Metadata
+  trainingDataPoints Int
+  trainingStarted DateTime
+  trainingCompleted  DateTime?
+
+  // Performance Metrics
+  accuracy        Decimal? @db.Decimal(5, 4)
+  mape            Decimal? @db.Decimal(5, 4) // Mean Absolute Percentage Error
+  rmse            Decimal? @db.Decimal(10, 4) // Root Mean Square Error
+
+  // Model Artifacts
+  modelPath       String?
+  parameters      Json?
+
+  // Status
+  status          TrainingStatus @default(PENDING)
+  errorMessage    String?
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+
+  @@index([modelType, propertyId])
+  @@index([status])
+  @@map("ml_model_training")
+}
+
+// Price Change History (for auditing)
+model PriceChangeHistory {
+  id             String   @id @default(uuid())
+  propertyId     String
+  date           DateTime @db.Date
+
+  previousPrice  Decimal  @db.Decimal(10, 2)
+  newPrice       Decimal  @db.Decimal(10, 2)
+  changePercent  Decimal  @db.Decimal(6, 2)
+
+  reason         String
+  triggeredBy    String   // 'SYSTEM', 'RULE', 'MANUAL', 'ML'
+
+  createdAt      DateTime @default(now())
+
+  @@index([propertyId, date])
+  @@index([createdAt])
+  @@map("price_change_history")
+}
+
+// A/B Testing Experiments
+model PricingExperiment {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  propertyId     String
+
+  // Experiment Configuration
+  variantA       Json     // Control variant config
+  variantB       Json     // Test variant config
+  trafficSplit   Decimal  @default(0.5) @db.Decimal(3, 2) // 0.5 = 50/50 split
+
+  // Results
+  variantARevenue Decimal? @db.Decimal(12, 2)
+  variantBRevenue Decimal? @db.Decimal(12, 2)
+  variantABookings Int?
+  variantBBookings Int?
+
+  // Status
+  status         ExperimentStatus @default(DRAFT)
+
+  // Schedule
+  startDate      DateTime
+  endDate        DateTime
+
+  // Timestamps
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([propertyId, status])
+  @@map("pricing_experiments")
+}
+
+// Enums
+enum RuleType {
+  SEASONAL
+  WEEKEND
+  LAST_MINUTE
+  LENGTH_OF_STAY
+  ORPHAN_DAY
+  EVENT_BASED
+  OCCUPANCY_BASED
+  COMPETITOR_BASED
+  CUSTOM
+}
+
+enum AdjustmentType {
+  MULTIPLIER    // e.g., 1.2 = 20% increase
+  FIXED_AMOUNT  // e.g., +50 or -20
+  PERCENTAGE    // e.g., 15 = 15% increase
+}
+
+enum MLModelType {
+  DEMAND_FORECAST_PROPHET
+  OCCUPANCY_LSTM
+  PRICE_OPTIMIZATION
+  REVENUE_FORECAST
+}
+
+enum TrainingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum ExperimentStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
