@@ -1,21 +1,19 @@
 # NexusPricing Quick Start Guide
 
-**Increase revenue by 12-18% with AI-powered dynamic pricing** - Join 800+ businesses using NexusPricing to optimize over $2B in annual transactions.
-
-> "NexusPricing increased our RevPAR by 23% in the first quarter. The competitive intelligence alone pays for itself." - David Chen, Revenue Director, Pacific Hospitality Group
+**AI-powered dynamic pricing optimization** - Optimize your pricing strategy with demand forecasting, competitive monitoring, and real-time price recommendations.
 
 ---
 
 ## The NexusPricing Advantage
 
-| Metric | Before NexusPricing | After NexusPricing | Impact |
-|--------|---------------------|-------------------|--------|
-| Revenue per Unit | Baseline | +12-18% | **Proven ROI** |
-| Price Update Speed | Daily/Weekly | Real-time | **24/7 optimization** |
-| Competitive Monitoring | Manual | Automated | **25 competitors tracked** |
-| Demand Forecasting | Spreadsheets | AI-Powered | **94% accuracy** |
+| Feature | Manual Pricing | NexusPricing |
+|---------|----------------|--------------|
+| Price Updates | Daily/weekly manual | Real-time automated |
+| Competitive Monitoring | Manual research | Automated tracking |
+| Demand Forecasting | Spreadsheet estimates | ML-powered predictions |
+| A/B Testing | Complex setup | Built-in experimentation |
 
-**Average customer sees 15% revenue lift within 60 days.**
+**Revenue impact varies based on market conditions, competition, and implementation.**
 
 ---
 

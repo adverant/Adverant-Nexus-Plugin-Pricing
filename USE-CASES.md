@@ -102,9 +102,9 @@ flowchart TD
 
 ### Business Impact
 
-- **18% revenue increase** in first 90 days
-- **23% RevPAR improvement** during peak periods
-- **Automated pricing** for 200+ properties
+- **Improved revenue** through dynamic pricing optimization
+- **Better RevPAR** during peak periods
+- **Automated pricing** reduces manual effort
 
 ---
 
@@ -208,7 +208,7 @@ class CompetitivePricingService {
 
 - **Real-time awareness** of competitor pricing
 - **Automated response** to market changes
-- **15% fewer lost bookings** to competitors
+- **Fewer lost bookings** to competitors
 
 ---
 
@@ -303,7 +303,7 @@ class PriceElasticityTesting:
 ### Business Impact
 
 - **Data-driven pricing decisions**
-- **Measured 12% revenue opportunity** through testing
+- **Identified revenue opportunities** through testing
 - **Reduced pricing debates** with objective data
 
 ---
@@ -440,9 +440,9 @@ flowchart LR
 
 ### Business Impact
 
-- **35% higher RevPAR** during events
-- **Zero missed events** with automated detection
-- **Captured $120K additional revenue** from 45 events
+- **Higher RevPAR** during events
+- **Fewer missed events** with automated detection
+- **Captured additional revenue** from event-based pricing
 
 ---
 
